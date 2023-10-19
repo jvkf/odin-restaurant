@@ -1,47 +1,48 @@
-import { restaurantHeader } from "./components/header";
 import { restaurantContent } from "./components/home";
 import { orderContent } from "./components/order";
-import load from "./functions/load";
+import firstLoad from "./functions/load";
 import "./components/styles.css";
 
-const header = document.querySelector("#header");
-header.appendChild(restaurantHeader());
+function getButtons() {
+  return document.querySelectorAll("nav button");
+}
+
+const components = {
+  restaurantContent: restaurantContent(),
+  orderContent: orderContent(),
+};
 
 export function appendComponent(component) {
   const content = document.querySelector("#content");
   content.replaceChildren(component);
 }
 
-function nav() {
-  const buttons = document.querySelectorAll("nav button");
-
-  function resetStatus() {
-    buttons.forEach((btn) => {
-      btn.classList.remove("active");
-    });
-  }
-
+function resetStatus() {
+  const buttons = getButtons();
   buttons.forEach((btn) => {
-    btn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      e.preventDefault();
-      resetStatus();
-
-      switch (e.target.id) {
-        case "homeButton": {
-          appendComponent(restaurantContent());
-          e.target.classList.add("active");
-          break;
-        }
-        case "orderButton": {
-          appendComponent(orderContent());
-          e.target.classList.add("active");
-          break;
-        }
-      }
-    });
+    btn.classList.remove("active");
   });
 }
 
-nav();
-load();
+function updateStatus(button) {
+  button.classList.add("active");
+}
+
+function attachContent(e) {
+  const button = e.target;
+  const content = e.target.dataset.content;
+
+  resetStatus();
+  updateStatus(button);
+  appendComponent(components[content]);
+}
+
+function navigation() {
+  const buttons = getButtons();
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", attachContent);
+  });
+}
+
+navigation();
+firstLoad();
